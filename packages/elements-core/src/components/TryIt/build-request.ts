@@ -78,7 +78,12 @@ export async function buildFetchRequest({
   const [queryParamsWithAuth, headersWithAuth] = runAuthRequestEhancements(auth, queryParams, rawHeaders);
 
   const expandedPath = uriExpand(httpOperation.path, parameterValues);
-  const url = new URL(URI(serverUrl).segment(expandedPath).toString());
+  var uri = URI(serverUrl);
+  const url = new URL(
+    URI(serverUrl)
+      .pathname(uri.path() + expandedPath)
+      .toString(),
+  );
   url.search = new URLSearchParams(queryParamsWithAuth.map(nameAndValueObjectToPair)).toString();
 
   const body = typeof bodyInput === 'object' ? await createRequestBody(mediaTypeContent, bodyInput) : bodyInput;
@@ -91,7 +96,6 @@ export async function buildFetchRequest({
     ...Object.fromEntries(headersWithAuth.map(nameAndValueObjectToPair)),
     ...mockData?.header,
   };
-
   return [
     url.toString(),
     {

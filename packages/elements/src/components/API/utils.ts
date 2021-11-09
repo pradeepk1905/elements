@@ -80,7 +80,9 @@ export const computeAPITree = (serviceNode: ServiceNode, config: ComputeAPITreeC
       title: 'Endpoints',
     });
 
-    const { groups, ungrouped } = computeTagGroups(serviceNode);
+    let { groups, ungrouped } = computeTagGroups(serviceNode);
+
+    ungrouped = ungrouped.sort((a, b) => (a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1));
 
     // Show ungroupped operations above tag groups
     ungrouped.forEach(operationNode => {
@@ -96,10 +98,14 @@ export const computeAPITree = (serviceNode: ServiceNode, config: ComputeAPITreeC
       });
     });
 
+    groups.sort((a, b) => (a.title > b.title.toUpperCase() ? 1 : -1));
+
     groups.forEach(group => {
+      let items = group.items;
+      items.sort((a, b) => (a.name > b.name.toUpperCase() ? 1 : -1));
       tree.push({
         title: group.title,
-        items: group.items.flatMap(operationNode => {
+        items: items.flatMap(operationNode => {
           if (mergedConfig.hideInternal && operationNode.data.internal) {
             return [];
           }
